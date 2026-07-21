@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Miran — меню</title>
+<meta name="theme-color" content="#211609" />
+<style>
+  body, body * { box-sizing: border-box; }
+  body {
+    --bg:        #211609;
+    --panel:     #2c1e10;
+    --panel-2:   #3a2814;
+    --line:      rgba(246,238,223,0.10);
+    --cream:     #F6EEDF;
+    --muted:     #C7AF8C;
+    --paprika:   #C1502E;
+    --paprika-2: #E06A3F;
+    --saffron:   #D9A544;
+    --olive:     #7C8A4E;
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Noto Serif', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--font-body);
+    min-height: 100%;
+    width: 100%;
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  body .app-shell {
+    max-width: 460px;
+    margin: 0 auto;
+    min-height: 640px;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(120% 60% at 50% -10%, rgba(224,106,63,0.18), transparent 60%),
+      var(--bg);
+  }
+
+  /* ---------- Top bar ---------- */
+  body .topbar {
+    padding: 18px 18px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+  }
+  body .brand {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  body .brand .name {
+    font-family: var(--font-display);
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    color: var(--saffron);
+  }
+  body .brand .tag {
+    font-size: 10.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  body .role-switch {
+    display: flex;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  body .role-switch button {
+    border: none; background: transparent; color: var(--muted);
+    font-size: 11.5px; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+    font-family: var(--font-body); font-weight: 600; letter-spacing: 0.3px;
+    transition: all .15s ease;
+  }
+  body .role-switch button.active {
+    background: var(--paprika); color: var(--cream);
+  }
+
+  /* ---------- Search / table ---------- */
+  body .subbar {
+    padding: 12px 18px;
+    display: flex; gap: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  body .subbar input[type="text"], body .subbar input[type="search"] {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--cream);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+  }
+  body .subbar input::placeholder { color: var(--muted); }
+  body .table-input {
+    width: 92px !important; flex: none !important; text-align: center;
+  }
+
+  /* ---------- Category chips ---------- */
+  body .chips {
+    display: flex; gap: 8px; overflow-x: auto; padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  body .chips::-webkit-scrollbar { display: none; }
+  body .chip {
+    flex: none;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12.5px;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  body .chip.active {
+    background: var(--saffron);
+    color: #241705;
+    border-color: var(--saffron);
+  }
+
+  /* ---------- Menu list ---------- */
+  body .menu-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 18px 120px;
+  }
+  body .category-block { margin-top: 22px; }
+  body .category-title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    color: var(--saffron);
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 2px;
+  }
+  body .category-title .skewer {
+    flex: 1; height: 1px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 10px);
+  }
+  body .category-unit { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+  body .item-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  body .item-info { flex: 1; min-width: 0; }
+  body .item-name { font-size: 14.5px; font-weight: 600; color: var(--cream); }
+  body .item-note { font-size: 11.5px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+  body .item-price { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  body .qty-controls {
+    display: flex; align-items: center; gap: 8px; flex: none;
+  }
+  body .qty-controls button {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel);
+    color: var(--cream); font-size: 16px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  body .qty-controls button.add {
+    background: var(--paprika); border-color: var(--paprika);
+  }
+  body .qty-controls .qty-num {
+    min-width: 16px; text-align: center; font-weight: 700; font-size: 14px;
+  }
+
+  body .empty-note {
+    text-align: center; color: var(--muted); font-size: 13px; padding: 40px 10px;
+  }
+
+  /* ---------- Cart bar ---------- */
+  body .cart-bar {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    max-width: 460px; margin: 0 auto;
+    background: linear-gradient(180deg, rgba(33,22,9,0), var(--bg) 22%);
+    padding: 14px 18px 18px;
+  }
+  body .cart-btn {
+    width: 100%;
+    background: var(--paprika);
+    border: none;
+    border-radius: 14px;
+    color: var(--cream);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 14.5px; font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(193,80,46,0.35);
+  }
+  body .cart-btn .left { display: flex; align-items: center; gap: 10px; }
+  body .cart-btn .count {
+    background: rgba(0,0,0,0.25); border-radius: 8px; padding: 2px 8px; font-size: 12.5px;
+  }
+
+  /* ---------- Drawer / overlay screens ---------- */
+  body .overlay {
+    position: absolute; inset: 0; background: var(--bg);
+    display: flex; flex-direction: column;
+    max-width: 460px; margin: 0 auto;
+  }
+  body .overlay-head {
+    padding: 16px 18px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  body .overlay-head .back {
+    width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--cream); cursor: pointer; font-size: 16px;
+  }
+  body .overlay-head .title { font-family: var(--font-display); font-size: 19px; color: var(--saffron); }
+  body .overlay-body { flex: 1; overflow-y: auto; padding: 14px 18px 20px; }
+
+  body .cart-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line);
+  }
+  body .cart-row .name { flex: 1; font-size: 14px; font-weight: 600; }
+  body .cart-row .line-total { font-size: 13px; color: var(--muted); width: 68px; text-align: right; }
+
+  body .totals {
+    margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
+  }
+  body .totals .row { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--muted); padding: 3px 0; }
+  body .totals .row.grand { color: var(--cream); font-size: 18px; font-weight: 700; margin-top: 6px; }
+  body .totals .row.grand .val { color: var(--saffron); }
+
+  body .field {
+    margin-top: 16px;
+  }
+  body .field label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 6px; }
+  body .field input {
+    width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--cream);
+    padding: 11px 12px; border-radius: 10px; font-size: 14px; outline: none;
+  }
+
+  body .primary-btn {
+    margin-top: 18px; width: 100%; background: var(--paprika); border: none; color: var(--cream);
+    padding: 14px; border-radius: 12px; font-size: 14.5px; font-weight: 700; cursor: pointer;
+  }
+  body .primary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  body .ghost-btn {
+    margin-top: 10px; width: 100%; background: transparent; border: 1px solid var(--line); color: var(--muted);
+    padding: 12px; border-radius: 12px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ---------- Ticket / confirmation ---------- */
+  body .ticket {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 18px;
+    text-align: center;
+    position: relative;
+  }
+  body .ticket .stamp {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--olive);
+    font-weight: 700;
+  }
+  body .ticket .code {
+    font-family: var(--font-display); font-size: 40px; color: var(--saffron); margin: 6px 0 2px;
+    letter-spacing: 1px;
+  }
+  body .ticket .meta { font-size: 12px; color: var(--muted); }
+  body .ticket .qr-wrap {
+    background: #fff; border-radius: 12px; padding: 14px; display: inline-block; margin: 16px 0 10px;
+  }
+  body .ticket .hint { font-size: 12px; color: var(--muted); line-height: 1.5; padding: 0 6px; }
+
+  body .receipt-list { margin-top: 18px; text-align: left; }
+  body .receipt-list .r-row { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; color: var(--muted); }
+  body .receipt-list .r-row .n { color: var(--cream); }
+
+  /* ---------- Waiter mode ---------- */
+  body .waiter-search {
+    display: flex; gap: 8px;
+  }
+  body .waiter-search input {
+    flex: 1; background: var(--panel); border: 1px solid var(--line); color: var(--cream);
+    padding: 12px; border-radius: 10px; font-size: 16px; letter-spacing: 2px; text-align: center;
+    text-transform: uppercase; outline: none;
+  }
+  body .waiter-search button {
+    background: var(--saffron); border: none; color: #241705; font-weight: 700;
+    padding: 0 16px; border-radius: 10px; cursor: pointer; font-size: 13px;
+  }
+  body .scan-box {
+    margin-top: 14px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line);
+    background: #000; position: relative; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+  }
+  body .scan-box video { width: 100%; height: 100%; object-fit: cover; }
+  body .scan-box .frame {
+    position: absolute; inset: 14%; border: 2px solid var(--saffron); border-radius: 14px; opacity: 0.8;
+  }
+  body .scan-status { text-align: center; font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  body .order-card {
+    margin-top: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+  }
+  body .order-card .oc-head { display: flex; justify-content: space-between; align-items: baseline; }
+  body .order-card .oc-code { font-family: var(--font-display); font-size: 22px; color: var(--saffron); }
+  body .order-card .oc-time { font-size: 11.5px; color: var(--muted); }
+  body .order-card .oc-table { font-size: 12.5px; color: var(--olive); font-weight: 700; margin-top: 2px; }
+  body .status-pill {
+    display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    background: rgba(124,138,78,0.2); color: var(--olive); margin-top: 8px;
+  }
+
+  body .toast {
+    position: absolute; bottom: 18px; left: 18px; right: 18px; max-width: 424px; margin: 0 auto;
+    background: var(--olive); color: #14180c; padding: 12px 14px; border-radius: 12px;
+    font-size: 13px; font-weight: 700; text-align: center;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+    z-index: 50;
+  }
+
+  body .note-banner {
+    font-size: 11px; color: var(--muted); background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="app-shell" id="app-shell"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+(function(){
+
+  // ---------------- FIREBASE ----------------
+  let db = null;
+  let firebaseReady = false;
+  try {
+    if (window.MIRAN_FIREBASE_CONFIG && window.MIRAN_FIREBASE_CONFIG.apiKey && window.MIRAN_FIREBASE_CONFIG.apiKey.indexOf("ВСТАВЬТЕ") === -1) {
+      firebase.initializeApp(window.MIRAN_FIREBASE_CONFIG);
+      db = firebase.firestore();
+      firebaseReady = true;
+    }
+  } catch (e) {
+    console.error("Firebase init error", e);
+  }
+
+  // ---------------- MENU DATA ----------------
+  const MENU = [
+    { cat: "Вино", unit: "0,75 л", items: [
+      { n: "Казанская Долина (красное, п/сладкое)", p: 8000 },
+      { n: "Казанская Долина (розовое, п/сладкое)", p: 8000 },
+    ]},
+    { cat: "Водка", unit: "50 мл", items: [
+      { n: "Хорошая", p: 850 },
+      { n: "Хортица Айс", p: 900 },
+      { n: "Кызылжар", p: 850 },
+      { n: "Русский Стандарт", p: 1150 },
+      { n: "Absolut", p: 1350 },
+      { n: "Finlandia", p: 1350 },
+    ]},
+    { cat: "Виски", unit: "50 мл", items: [
+      { n: "Jameson", p: 1950 },
+      { n: "Chivas Regal 12 Y.O", p: 2950 },
+    ]},
+    { cat: "Казахстанский коньяк", unit: "50 мл", items: [
+      { n: "Казахстан 3* GW", p: 750 },
+    ]},
+    { cat: "Безалкогольные коктейли", unit: "0,25 л", items: [
+      { n: "Мохито", p: 1700 },
+      { n: "Молочный", p: 2000 },
+      { n: "Шоколадный", p: 2000 },
+      { n: "Клубничный", p: 2000 },
+      { n: "Банановый", p: 2000 },
+    ]},
+    { cat: "Алкогольные коктейли", unit: "0,25 л", items: [
+      { n: "Мохито", p: 2500 },
+      { n: "Лонг Айленд", p: 2500 },
+      { n: "Апероль Шприц", p: 2500 },
+      { n: "Пина Колада", p: 2500 },
+    ]},
+    { cat: "Холодные напитки", items: [
+      { n: "Минеральная вода", p: 650 },
+      { n: "Пепси / Миринда / 7up", p: 1050 },
+      { n: "Квас", p: 800 },
+      { n: "Диззи", p: 900 },
+      { n: "Пепси 0,25", p: 750 },
+      { n: "Боржоми", p: 1100 },
+      { n: "Ред Булл 0,25", p: 1200 },
+      { n: "Сок Да-Да", p: 1300 },
+      { n: "Сок Грацио", p: 1700 },
+    ]},
+    { cat: "Чай", items: [
+      { n: "Чёрный", p: 900 },
+      { n: "Зелёный", p: 900 },
+      { n: "Чёрный с молоком", p: 1600 },
+      { n: "Ташкентский", p: 1900 },
+      { n: "Фруктовый", p: 1900 },
+      { n: "Казах чай", note: "сок, талкан, молоко, сироп карамель", p: 2000 },
+      { n: "Марокканский", p: 1800 },
+      { n: "Ягодный", p: 1900 },
+      { n: "Апельсиновый", p: 1900 },
+    ]},
+    { cat: "К чаю", items: [
+      { n: "Лимон", p: 400 },
+      { n: "Наят", p: 400 },
+      { n: "Молоко", p: 600 },
+      { n: "Мёд", p: 500 },
+    ]},
+    { cat: "Лимонады", unit: "1 л", items: [
+      { n: "Киви-лайм", p: 2700 },
+      { n: "Манго-маракуйя", p: 2700 },
+      { n: "Ягодный", p: 2700 },
+      { n: "Маракуйя-малина", p: 2700 },
+      { n: "Тархун", p: 2700 },
+      { n: "Мохито", p: 2700 },
+    ]},
+    { cat: "Сеты", items: [
+      { n: "Сет №2", note: "мясное ассорти на шпажках, 60 см", p: 11500 },
+      { n: "Сет №3", note: "мясное ассорти, 60 см", p: 22000 },
+      { n: "Сет №4", note: "мясо-овощное ассорти, 60 см", p: 34000 },
+      { n: "Ассорти на садже", p: 12600 },
+    ]},
+    { cat: "Блюда на компанию", items: [
+      { n: "Шах плов", note: "ташкентский плов, запечённый в тонкой хлебной оболочке", p: 11000 },
+      { n: "Плов ташкентский", note: "на 7–8 персон", p: 15000 },
+      { n: "Плов праздничный", note: "на 7–8 персон", p: 14500 },
+      { n: "Банкетный куырдак", p: 25000 },
+      { n: "Манты микс", note: "на 6 персон", p: 13200 },
+      { n: "Достар", note: "фирменное блюдо, ассорти из голубцов, фрикаделек, филейки, курицы и картофеля, с рисом, на 7–8 персон", p: 18500 },
+    ]},
+    { cat: "Домашняя выпечка", items: [
+      { n: "Лепёшка", p: 300 },
+      { n: "Самса пармуда", p: 1100 },
+      { n: "Хлебное ассорти", p: 1250 },
+      { n: "Баурсаки", unit: "1 кг", p: 1300 },
+      { n: "Хачапури с сыром", p: 2750 },
+    ]},
+    { cat: "Десерты", items: [
+      { n: "Мёд", p: 500 },
+      { n: "Казахстанский шоколад", p: 1500 },
+      { n: "Чак-чак", p: 800 },
+      { n: "Мороженое в ассортименте", p: 1000 },
+      { n: "Чизкейк тары", p: 2600 },
+      { n: "Фруктовое ассорти", p: 7500 },
+      { n: "Медовик", p: 2600 },
+    ]},
+    { cat: "Гарниры", items: [
+      { n: "Рис", p: 800 },
+      { n: "Фри", p: 1100 },
+      { n: "Пюре", p: 650 },
+      { n: "Картофель по-деревенски", p: 1000 },
+    ]},
+    { cat: "Соусы", items: [
+      { n: "Сырный", p: 750 },
+      { n: "Кетчуп", p: 750 },
+      { n: "Сметана", p: 750 },
+      { n: "Чесночный", p: 750 },
+      { n: "Томатный", p: 750 },
+      { n: "Лазжан", p: 750 },
+    ]},
+    { cat: "Ассорти", items: [
+      { n: "Ассорти кавказское", note: "свежие помидоры, огурцы, паприка, зелень, 2 вида сыра, чесночный соус", p: 3150 },
+      { n: "Сантепсаль", p: 4800 },
+      { n: "Гудельпхан", p: 4800 },
+    ]},
+    { cat: "Закуска", items: [
+      { n: "Мясное ассорти", p: 4900 },
+      { n: "Сырные трубочки", note: "8 шт", p: 2000 },
+      { n: "Наттетсы", note: "7 шт", p: 2500 },
+      { n: "Жилик май", p: 2750 },
+      { n: "Селёдка под водочку", note: "сочная солёная сельдь с нежным картофелем, хрустящими огурцами и луком", p: 2500 },
+    ]},
+    { cat: "Горячие закуски", items: [
+      { n: "Кюфта с сыром", p: 2300 },
+      { n: "Овощи гриль", p: 1990 },
+      { n: "Киймали пита", p: 2200 },
+      { n: "Запечённый помидор", p: 500 },
+    ]},
+    { cat: "Барбекю и кебабы", items: [
+      { n: "Филейка", p: 3700 },
+      { n: "Курица барбекю", p: 2700 },
+      { n: "Тауык кебаб", p: 2200 },
+      { n: "Хан-кебаб", p: 2600 },
+    ]},
+    { cat: "Шашлыки на углях", items: [
+      { n: "Шашлык из печени", p: 1400 },
+      { n: "Шашлык из окорочков", p: 2090 },
+      { n: "Шашлык из говядины", p: 1750 },
+      { n: "Шашлык из крылышек", p: 1600 },
+      { n: "Сом", p: 1750 },
+      { n: "Утка", p: 1950 },
+      { n: "Шашлык кусковой", p: 1850 },
+      { n: "Кийма", p: 1400 },
+      { n: "Шашлык из конины", p: 1850 },
+      { n: "Шашлык «Миран»", p: 1700 },
+      { n: "Шашлык из шампиньонов", p: 2200 },
+      { n: "Думбалы картошка", p: 850 },
+      { n: "Беспанжа", note: "шашлык из баранины на пяти шампурах", p: 5950 },
+    ]},
+    { cat: "Горячие блюда", items: [
+      { n: "Томлёное ребро", note: "хит · новинка", p: 2350 },
+      { n: "Котлета по-домашнему", p: 2350 },
+      { n: "Курица терияки", p: 2350 },
+      { n: "Каурма латман", note: "яркое блюдо с мясом, овощами и домашней лапшой", p: 2750 },
+      { n: "Гуйру танфан", note: "дуэт подливы из говядины с овощами и отварного риса", p: 2500 },
+      { n: "Ток поки острый", p: 2450 },
+      { n: "Куырдак", note: "фирменное блюдо, баранина", p: 4800 },
+      { n: "Туркестан", note: "нежные бараньи рёбрышки по-восточному", p: 3750 },
+      { n: "Тай куырдак", note: "фирменное блюдо, конина", p: 4200 },
+      { n: "Мясо по-тайски", note: "томлёная говядина с овощами и специями, на жаровне", p: 3000 },
+    ]},
+    { cat: "Вторые блюда", items: [
+      { n: "Ташкентский плов", note: "плов из говядины с изюмом, казы и перепелиным яйцом", p: 2400 },
+      { n: "Праздничный плов", note: "плов с бараниной, подаётся с казы и чесноком", p: 2400 },
+    ]},
+    { cat: "Супы", items: [
+      { n: "Рамен с пельменями", p: 2750 },
+      { n: "Рамен с креветками", p: 2950 },
+      { n: "Рамен с курицей", p: 2850 },
+      { n: "Кебаб шорпа", note: "хит · новинка", p: 2600 },
+      { n: "Сорпа", note: "восточный бульон из молодого ягнёнка с овощами и зеленью", p: 2300 },
+      { n: "Латман узбекский", note: "наваристый бульон с ручной лапшой", p: 2500 },
+      { n: "Латман уйгурский", note: "лапша ручного приготовления с бульоном «Ваджу»", p: 2500 },
+      { n: "Перепелиный суп", note: "лёгкий суп из перепёлки с овощами", p: 2400 },
+      { n: "Мампар", note: "суп с овощами, мясом, кусочками теста и яйцом", p: 2150 },
+      { n: "Домашняя лапша с фрикадельками", p: 2400 },
+      { n: "Чучвара", note: "суп с домашними пельменями", p: 2400 },
+      { n: "Мастава", note: "восточный рисовый суп", p: 2300 },
+      { n: "Машхорда", note: "наваристый суп с рисом и машем", p: 2300 },
+      { n: "Окрошка", note: "холодный суп с овощами и копчёной колбасой", p: 2000 },
+    ]},
+    { cat: "Роллы и азиатская кухня", items: [
+      { n: "Киллаб с сёмгой", p: 2800 },
+      { n: "Киллаб с говядиной", p: 2700 },
+      { n: "Фаршированный перец", note: "острые перцы, фаршированные мясом, обжаренные в кляре", p: 2400 },
+      { n: "Кукси", note: "блюдо корейской кухни, подаётся холодным или горячим", p: 2400 },
+    ]},
+    { cat: "Хе", items: [
+      { n: "Хе из огурцов", p: 2500 },
+      { n: "Хе из грибов", p: 2800 },
+      { n: "Хе из говядины", p: 3250 },
+      { n: "Хе из рыбы", p: 2650 },
+      { n: "Хе из бараньих рёбрышек", p: 2950 },
+    ]},
+    { cat: "Салаты", items: [
+      { n: "Дамди", note: "телятина, грибы, брокколи, черри в соусе на основе сои", p: 3450 },
+      { n: "Монако", note: "айсберг, сёмга, творожный сыр, черри, оливки", p: 3500 },
+      { n: "Цезарь с курицей", note: "айсберг, курица, черри, сухари, соус цезарь, пармезан", p: 3800 },
+      { n: "Европа", note: "лист салата, куриная грудка, кукуруза, сухарики, майонез", p: 2500 },
+      { n: "Грузия", note: "листья салата, помидоры, огурцы, перец, хрустящие баклажаны", p: 3200 },
+      { n: "Греческий", note: "листья салата, томаты, огурцы, сыр фетакса, оливки", p: 3350 },
+      { n: "Ситора", note: "куриное филе, яйцо, кукуруза, огурцы, колбаса, говяжий язык", p: 2750 },
+      { n: "Ляззат", note: "хрустящие баклажаны в кляре с томатами в авторском соусе", p: 3750 },
+      { n: "Анхор", note: "томаты, отварная курица, сухарики, тёртый сыр, майонез", p: 2700 },
+      { n: "Оливье", p: 2200 },
+      { n: "Ачичук", note: "сочные томаты с луком и острым перчиком", p: 2000 },
+      { n: "Свежий", note: "заправляется по желанию маслом, майонезом или зеленью", p: 2100 },
+      { n: "Малика", note: "телятина, капуста, огурцы, яйцо, картофель пай, майонез", p: 2650 },
+      { n: "Сезам", note: "зелень, томаты, огурцы, сыр фетакса, грецкие орехи", p: 2600 },
+      { n: "Микс салат с курицей", p: 3150 },
+      { n: "Микс салат с говядиной", p: 3300 },
+    ]},
+  ];
+
+  const fmt = (n) => n.toLocaleString("ru-RU");
+  const root = document.getElementById("app-shell");
+  const params = new URLSearchParams(location.search);
+
+  // ---------------- STATE ----------------
+  let activeCat = MENU[0].cat;
+  let query = "";
+  let cart = {};
+  let table = params.get("table") || "";
+  let screen = "menu";
+  let lastOrder = null;
+  let toast = null;
+  let saving = false;
+
+  function esc(s) {
+    return (s || "").toString().replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function showToast(msg, ms) {
+    toast = msg; render();
+    setTimeout(() => { toast = null; render(); }, ms || 3200);
+  }
+  function findItem(id) {
+    for (const c of MENU) for (const it of c.items) if (it.id === id) return it;
+    return null;
+  }
+  function cartCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
+  function cartTotal() {
+    let t = 0;
+    for (const id in cart) { const it = findItem(id); if (it) t += it.p * cart[id]; }
+    return t;
+  }
+  function addItem(id) { cart[id] = (cart[id] || 0) + 1; render(); }
+  function removeItem(id) {
+    if (!cart[id]) return;
+    cart[id] -= 1;
+    if (cart[id] <= 0) delete cart[id];
+    render();
+  }
+  function genCode() {
+    const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+    let s = "";
+    for (let i = 0; i < 5; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+
+  async function submitOrder() {
+    if (saving) return;
+    const items = Object.keys(cart).map(id => {
+      const it = findItem(id);
+      return { n: it.n, p: it.p, qty: cart[id] };
+    });
+    if (!items.length) return;
+
+    if (!firebaseReady) {
+      showToast("База данных не настроена — заполните firebase-config.js");
+      return;
+    }
+
+    const code = genCode();
+    const order = {
+      code,
+      table: table.trim() || "—",
+      items,
+      total: cartTotal(),
+      createdAt: new Date().toISOString(),
+      status: "Принят"
+    };
+
+    saving = true; render();
+    try {
+      await db.collection("orders").doc(code).set(order);
+      lastOrder = order;
+      cart = {};
+      screen = "confirm";
+    } catch (e) {
+      console.error(e);
+      showToast("Ошибка сохранения: " + (e && e.message ? e.message : "неизвестно"));
+    }
+    saving = false;
+    render();
+    setTimeout(renderQR, 30);
+  }
+
+  function renderQR() {
+    const el = root.querySelector("#qr-target");
+    if (!el || !window.QRCode || !lastOrder) return;
+    el.innerHTML = "";
+    new QRCode(el, {
+      text: location.origin + location.pathname.replace(/index\.html$/, "") + "waiter.html?code=" + lastOrder.code,
+      width: 168,
+      height: 168,
+      colorDark: "#211609",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+
+  // ---------------- RENDER ----------------
+  function render() {
+    let overlay = "";
+    if (screen === "cart") overlay = cartOverlayHTML();
+    if (screen === "confirm") overlay = confirmOverlayHTML();
+
+    root.innerHTML = `
+      <div class="topbar">
+        <div class="brand">
+          <div class="name">Miran</div>
+          <div class="tag">Меню у стола</div>
+        </div>
+      </div>
+      ${!firebaseReady ? `<div class="note-banner" style="margin:14px 18px 0;">⚠ Firestore не настроен: заполните <code>firebase-config.js</code>, чтобы заказы сохранялись по-настоящему.</div>` : ""}
+      <div class="subbar">
+        <input type="search" id="search-input" placeholder="Найти блюдо…" value="${esc(query)}" />
+        <input type="text" class="table-input" id="table-input" placeholder="Стол №" value="${esc(table)}" />
+      </div>
+      <div class="chips">
+        ${MENU.map(c => `<div class="chip ${c.cat === activeCat ? "active" : ""}" data-cat="${esc(c.cat)}">${esc(c.cat)}</div>`).join("")}
+      </div>
+      <div class="menu-scroll" id="menu-scroll">
+        ${menuListHTML()}
+      </div>
+      ${cartCount() > 0 ? `
+      <div class="cart-bar">
+        <button class="cart-btn" id="open-cart">
+          <span class="left">🧺 <span class="count">${cartCount()}</span> в корзине</span>
+          <span>${fmt(cartTotal())} ₸</span>
+        </button>
+      </div>` : ""}
+      ${overlay}
+      ${toast ? `<div class="toast">${esc(toast)}</div>` : ""}
+    `;
+    bindEvents();
+    if (screen === "confirm") renderQR();
+  }
+
+  function menuListHTML() {
+    const q = query.trim().toLowerCase();
+    const cats = q
+      ? MENU.map(c => ({ ...c, items: c.items.filter(it => it.n.toLowerCase().includes(q)) })).filter(c => c.items.length)
+      : MENU.filter(c => c.cat === activeCat);
+    if (!cats.length) return `<div class="empty-note">Ничего не найдено</div>`;
+    return cats.map(c => `
+      <div class="category-block">
+        <div class="category-title">${esc(c.cat)}<span class="skewer"></span>${c.unit ? `<span class="category-unit">${esc(c.unit)}</span>` : ""}</div>
+        ${c.items.map(it => itemRowHTML(it)).join("")}
+      </div>
+    `).join("");
+  }
+
+  function itemRowHTML(it) {
+    const qty = cart[it.id] || 0;
+    return `
+      <div class="item-row">
+        <div class="item-info">
+          <div class="item-name">${esc(it.n)}${it.unit ? ` <span style="color:var(--muted);font-weight:400;">· ${esc(it.unit)}</span>` : ""}</div>
+          ${it.note ? `<div class="item-note">${esc(it.note)}</div>` : ""}
+          <div class="item-price">${fmt(it.p)} ₸</div>
+        </div>
+        <div class="qty-controls">
+          ${qty > 0 ? `<button data-remove="${it.id}">–</button><span class="qty-num">${qty}</span>` : ""}
+          <button class="add" data-add="${it.id}">+</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function cartOverlayHTML() {
+    const ids = Object.keys(cart);
+    return `
+      <div class="overlay">
+        <div class="overlay-head">
+          <button class="back" id="close-cart">←</button>
+          <div class="title">Ваш заказ</div>
+        </div>
+        <div class="overlay-body">
+          <div class="note-banner">Обслуживание 0% — цены указаны итоговые. После оформления вы получите QR-код заказа для официанта.</div>
+          ${ids.length ? ids.map(id => {
+            const it = findItem(id);
+            return `<div class="cart-row">
+              <div class="name">${esc(it.n)}</div>
+              <div class="qty-controls">
+                <button data-remove="${id}">–</button>
+                <span class="qty-num">${cart[id]}</span>
+                <button class="add" data-add="${id}">+</button>
+              </div>
+              <div class="line-total">${fmt(it.p * cart[id])} ₸</div>
+            </div>`;
+          }).join("") : `<div class="empty-note">Корзина пуста</div>`}
+          ${ids.length ? `
+          <div class="totals">
+            <div class="row grand"><span>Итого</span><span class="val">${fmt(cartTotal())} ₸</span></div>
+          </div>
+          <div class="field">
+            <label>Номер стола</label>
+            <input type="text" id="table-input-2" placeholder="Например, 12" value="${esc(table)}" />
+          </div>
+          <button class="primary-btn" id="submit-order" ${saving ? "disabled" : ""}>${saving ? "Отправляем…" : "Оформить заказ"}</button>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  function confirmOverlayHTML() {
+    if (!lastOrder) return "";
+    const o = lastOrder;
+    const time = new Date(o.createdAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    return `
+      <div class="overlay">
+        <div class="overlay-head">
+          <button class="back" id="close-confirm">←</button>
+          <div class="title">Заказ оформлен</div>
+        </div>
+        <div class="overlay-body">
+          <div class="ticket">
+            <div class="stamp">Код заказа</div>
+            <div class="code">${esc(o.code)}</div>
+            <div class="meta">Стол ${esc(o.table)} · ${time}</div>
+            <div class="qr-wrap"><div id="qr-target"></div></div>
+            <div class="hint">Покажите этот QR официанту — он отсканирует его своим телефоном и увидит весь заказ.</div>
+            <div class="receipt-list">
+              ${o.items.map(it => `<div class="r-row"><span class="n">${it.qty} × ${esc(it.n)}</span><span>${fmt(it.p * it.qty)} ₸</span></div>`).join("")}
+              <div class="r-row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px;font-weight:700;color:var(--cream);">
+                <span>Итого</span><span>${fmt(o.total)} ₸</span>
+              </div>
+            </div>
+          </div>
+          <button class="ghost-btn" id="new-order">Сделать новый заказ</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindEvents() {
+    root.querySelectorAll(".chip").forEach(c => c.onclick = () => { activeCat = c.dataset.cat; query = ""; render(); });
+    const search = root.querySelector("#search-input");
+    if (search) search.oninput = (e) => {
+      query = e.target.value; render();
+      setTimeout(() => { const s = root.querySelector("#search-input"); if (s) { s.focus(); s.selectionStart = s.selectionEnd = s.value.length; } }, 0);
+    };
+    const tinput = root.querySelector("#table-input");
+    if (tinput) tinput.oninput = (e) => { table = e.target.value; };
+    const tinput2 = root.querySelector("#table-input-2");
+    if (tinput2) tinput2.oninput = (e) => { table = e.target.value; };
+
+    root.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addItem(b.dataset.add));
+    root.querySelectorAll("[data-remove]").forEach(b => b.onclick = () => removeItem(b.dataset.remove));
+
+    const openCart = root.querySelector("#open-cart");
+    if (openCart) openCart.onclick = () => { screen = "cart"; render(); };
+    const closeCart = root.querySelector("#close-cart");
+    if (closeCart) closeCart.onclick = () => { screen = "menu"; render(); };
+    const closeConfirm = root.querySelector("#close-confirm");
+    if (closeConfirm) closeConfirm.onclick = () => { screen = "menu"; render(); };
+    const submit = root.querySelector("#submit-order");
+    if (submit) submit.onclick = submitOrder;
+    const newOrder = root.querySelector("#new-order");
+    if (newOrder) newOrder.onclick = () => { screen = "menu"; lastOrder = null; render(); };
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

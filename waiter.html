@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Miran — официант</title>
+<meta name="theme-color" content="#1c1409" />
+<style>
+  body, body * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    --bg:        #1c1409;
+    --panel:     #2a1d10;
+    --panel-2:   #38281550;
+    --line:      rgba(246,238,223,0.10);
+    --cream:     #F6EEDF;
+    --muted:     #C7AF8C;
+    --paprika:   #C1502E;
+    --paprika-2: #E06A3F;
+    --saffron:   #D9A544;
+    --olive:     #7C8A4E;
+    --amber:     #C98A2E;
+    --font-display: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Noto Serif', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--font-body);
+    min-height: 100%;
+    width: 100%;
+    position: relative;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body .shell {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(120% 50% at 50% -10%, rgba(224,106,63,0.16), transparent 60%), var(--bg);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Header */
+  body .head {
+    padding: 16px 18px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg);
+  }
+  body .brand { display: flex; flex-direction: column; gap: 1px; }
+  body .brand .name { font-family: var(--font-display); font-size: 22px; color: var(--saffron); }
+  body .brand .tag { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--muted); }
+  body .staff-badge {
+    font-size: 11px; color: var(--olive); background: rgba(124,138,78,0.16);
+    padding: 5px 10px; border-radius: 999px; font-weight: 700; white-space: nowrap;
+  }
+
+  /* Tabs */
+  body .tabs {
+    display: flex; padding: 10px 18px 0; gap: 6px;
+    position: sticky; top: 61px; z-index: 5; background: var(--bg);
+  }
+  body .tab {
+    flex: 1; text-align: center; padding: 10px 4px 12px;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    border-bottom: 2px solid transparent; cursor: pointer;
+  }
+  body .tab.active { color: var(--saffron); border-color: var(--saffron); }
+
+  body .body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 18px 28px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Scan tab */
+  body .scan-cta {
+    background: var(--paprika);
+    border: none; color: var(--cream);
+    width: 100%; padding: 18px; border-radius: 16px;
+    font-size: 16px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 12px 26px rgba(193,80,46,0.32);
+  }
+  body .scan-cta .ic { font-size: 20px; }
+  body .scan-cta:active { transform: scale(0.98); }
+
+  body .scan-frame {
+    margin-top: 16px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    aspect-ratio: 3/4;
+    border: 1px solid var(--line);
+  }
+  body .scan-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  body .scan-frame .box {
+    position: absolute; inset: 16% 12%;
+    border: 3px solid var(--saffron);
+    border-radius: 20px;
+    box-shadow: 0 0 0 999px rgba(0,0,0,0.35);
+  }
+  body .scan-frame .box::before, body .scan-frame .box::after {
+    content: ""; position: absolute; width: 22px; height: 22px; border-color: var(--saffron); border-style: solid;
+  }
+  body .scan-frame .stop-btn {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.55); color: var(--cream); border: 1px solid rgba(255,255,255,0.25);
+    padding: 9px 18px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
+  }
+  body .scan-status {
+    text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 10px; min-height: 16px;
+  }
+
+  body .divider-row {
+    display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; color: var(--muted); font-size: 11.5px;
+  }
+  body .divider-row .line { flex: 1; height: 1px; background: var(--line); }
+
+  body .manual-row { display: flex; gap: 8px; }
+  body .manual-row input {
+    flex: 1; background: var(--panel); border: 1px solid var(--line); color: var(--cream);
+    padding: 14px 12px; border-radius: 12px; font-size: 18px; letter-spacing: 3px; text-align: center;
+    text-transform: uppercase; outline: none; font-weight: 700;
+  }
+  body .manual-row button {
+    background: var(--saffron); border: none; color: #241705; font-weight: 800;
+    padding: 0 18px; border-radius: 12px; font-size: 13.5px;
+  }
+
+  body .error-note {
+    margin-top: 12px; text-align: center; font-size: 12.5px; color: var(--paprika-2); font-weight: 600;
+  }
+
+  /* Order card */
+  body .order-card {
+    margin-top: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+  body .oc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  body .oc-code { font-family: var(--font-display); font-size: 28px; color: var(--saffron); letter-spacing: 1px; }
+  body .oc-time { font-size: 11.5px; color: var(--muted); text-align: right; }
+  body .oc-table {
+    display: inline-block; margin-top: 8px; background: rgba(124,138,78,0.16); color: var(--olive);
+    font-size: 12.5px; font-weight: 800; padding: 5px 11px; border-radius: 999px;
+  }
+
+  body .status-row { display: flex; gap: 6px; margin-top: 14px; }
+  body .status-chip {
+    flex: 1; text-align: center; font-size: 11.5px; font-weight: 700; padding: 9px 4px;
+    border-radius: 10px; border: 1px solid var(--line); color: var(--muted); background: var(--bg);
+  }
+  body .status-chip.current {
+    background: var(--olive); color: #14180c; border-color: var(--olive);
+  }
+
+  body .oc-list { margin-top: 16px; border-top: 1px dashed var(--line); padding-top: 10px; }
+  body .oc-list .r-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 6px 0; color: var(--muted); }
+  body .oc-list .r-row .n { color: var(--cream); }
+  body .oc-list .r-total {
+    display: flex; justify-content: space-between; font-weight: 800; font-size: 17px; color: var(--cream);
+    border-top: 1px solid var(--line); margin-top: 8px; padding-top: 10px;
+  }
+  body .oc-list .r-total .val { color: var(--saffron); }
+
+  /* Queue tab */
+  body .queue-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 13px 14px; margin-bottom: 10px;
+  }
+  body .queue-item .qcode {
+    font-family: var(--font-display); font-size: 19px; color: var(--saffron); min-width: 58px;
+  }
+  body .queue-item .qinfo { flex: 1; min-width: 0; }
+  body .queue-item .qtable { font-size: 12px; color: var(--olive); font-weight: 700; }
+  body .queue-item .qtime { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  body .queue-item .qtotal { font-size: 14px; font-weight: 700; color: var(--cream); white-space: nowrap; }
+
+  body .refresh-btn {
+    width: 100%; background: transparent; border: 1px solid var(--line); color: var(--muted);
+    padding: 12px; border-radius: 12px; font-size: 13px; font-weight: 700; margin-bottom: 14px;
+  }
+
+  body .empty-note { text-align: center; color: var(--muted); font-size: 13px; padding: 50px 10px; }
+
+  body .toast {
+    position: fixed; left: 18px; right: 18px; bottom: 22px; max-width: 444px; margin: 0 auto;
+    background: var(--olive); color: #14180c; padding: 13px 16px; border-radius: 14px;
+    font-size: 13.5px; font-weight: 800; text-align: center;
+    box-shadow: 0 12px 26px rgba(0,0,0,0.4); z-index: 50;
+  }
+
+  body canvas#scan-canvas { display: none; }
+</style>
+</head>
+<body>
+<div class="shell" id="shell"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+(function(){
+  const root = document.getElementById("shell");
+  const STATUSES = ["Принят", "Готовится", "Подан"];
+  const fmt = (n) => n.toLocaleString("ru-RU");
+  const esc = (s) => (s || "").toString().replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  // ---------------- FIREBASE ----------------
+  let db = null;
+  let firebaseReady = false;
+  try {
+    if (window.MIRAN_FIREBASE_CONFIG && window.MIRAN_FIREBASE_CONFIG.apiKey && window.MIRAN_FIREBASE_CONFIG.apiKey.indexOf("ВСТАВЬТЕ") === -1) {
+      firebase.initializeApp(window.MIRAN_FIREBASE_CONFIG);
+      db = firebase.firestore();
+      firebaseReady = true;
+    }
+  } catch (e) {
+    console.error("Firebase init error", e);
+  }
+
+  let tab = "scan";
+  let scanning = false;
+  let scanStatus = "";
+  let manualCode = "";
+  let order = null;
+  let error = "";
+  let toast = null;
+  let queue = [];
+  let queueLoading = false;
+  let queueUnsub = null;
+  let videoStream = null;
+
+  function showToast(msg, ms) {
+    toast = msg; render();
+    setTimeout(() => { toast = null; render(); }, ms || 3200);
+  }
+
+  async function lookup(raw) {
+    const code = (raw || "").trim().toUpperCase().replace(/^MIRAN-ORDER:/, "");
+    if (!code) return;
+    error = "";
+    if (!firebaseReady) {
+      error = "База данных не настроена — заполните firebase-config.js";
+      render();
+      return;
+    }
+    try {
+      const doc = await db.collection("orders").doc(code).get();
+      if (doc.exists) {
+        order = doc.data();
+      } else {
+        order = null;
+        error = "Заказ с таким кодом не найден";
+      }
+    } catch (e) {
+      order = null;
+      error = "Ошибка: " + (e && e.message ? e.message : "не удалось найти заказ");
+    }
+    render();
+  }
+
+  async function setStatus(newStatus) {
+    if (!order) return;
+    order.status = newStatus;
+    if (!firebaseReady) { showToast("База данных не настроена"); render(); return; }
+    try {
+      await db.collection("orders").doc(order.code).update({ status: newStatus });
+      showToast("Статус обновлён: " + newStatus);
+    } catch (e) {
+      showToast("Ошибка: " + (e && e.message ? e.message : "не удалось обновить статус"));
+    }
+    render();
+  }
+
+  function loadQueue() {
+    if (!firebaseReady) { queueLoading = false; render(); return; }
+    queueLoading = true; render();
+    if (queueUnsub) queueUnsub();
+    queueUnsub = db.collection("orders").orderBy("createdAt", "desc").limit(50)
+      .onSnapshot(snap => {
+        queue = snap.docs.map(d => d.data()).filter(o => o.status !== "Подан");
+        queueLoading = false;
+        render();
+      }, err => {
+        console.error(err);
+        queueLoading = false;
+        render();
+      });
+  }
+
+  async function openFromQueue(code) {
+    tab = "scan";
+    await lookup(code);
+  }
+
+  // ---- camera scan ----
+  async function startScan() {
+    scanning = true;
+    scanStatus = "Запрашиваем доступ к камере…";
+    render();
+    try {
+      videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } });
+    } catch (e) {
+      scanStatus = "Камера недоступна — введите код вручную";
+      scanning = false;
+      render();
+      return;
+    }
+    const video = root.querySelector("#scan-video");
+    if (!video) return;
+    video.srcObject = videoStream;
+    video.setAttribute("playsinline", "true");
+    video.play();
+    scanStatus = "Наведите камеру на QR-код клиента";
+    render();
+    requestAnimationFrame(tick);
+  }
+  function stopScan() {
+    scanning = false;
+    if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
+  }
+  function tick() {
+    if (!scanning) return;
+    const video = root.querySelector("#scan-video");
+    const canvas = root.querySelector("#scan-canvas");
+    if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) {
+      requestAnimationFrame(tick);
+      return;
+    }
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const result = window.jsQR ? jsQR(imgData.data, imgData.width, imgData.height) : null;
+    if (result && result.data) {
+      let code = result.data;
+      const m = code.match(/[?&]code=([A-Z0-9]+)/i);
+      if (m) code = m[1];
+      stopScan();
+      lookup(code);
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ---- render ----
+  function render() {
+    root.innerHTML = `
+      <div class="head">
+        <div class="brand"><div class="name">Miran</div><div class="tag">Кабинет официанта</div></div>
+        <div class="staff-badge">● на смене</div>
+      </div>
+      ${!firebaseReady ? `<div style="margin:12px 18px 0;font-size:11px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;">⚠ Firestore не настроен: заполните <code>firebase-config.js</code>.</div>` : ""}
+      <div class="tabs">
+        <div class="tab ${tab === "scan" ? "active" : ""}" data-tab="scan">Сканировать</div>
+        <div class="tab ${tab === "queue" ? "active" : ""}" data-tab="queue">Активные заказы</div>
+      </div>
+      <div class="body" id="body">
+        ${tab === "scan" ? scanTabHTML() : queueTabHTML()}
+      </div>
+      ${toast ? `<div class="toast">${esc(toast)}</div>` : ""}
+    `;
+    bind();
+  }
+
+  function scanTabHTML() {
+    return `
+      ${!scanning ? `<button class="scan-cta" id="start-scan"><span class="ic">📷</span> Сканировать QR клиента</button>` : `
+      <div class="scan-frame">
+        <video id="scan-video" muted></video>
+        <div class="box"></div>
+        <button class="stop-btn" id="stop-scan">Остановить</button>
+      </div>
+      <canvas id="scan-canvas" style="display:none;"></canvas>
+      `}
+      ${scanStatus ? `<div class="scan-status">${esc(scanStatus)}</div>` : ""}
+      <div class="divider-row"><div class="line"></div>ИЛИ ВВЕДИТЕ КОД<div class="line"></div></div>
+      <div class="manual-row">
+        <input type="text" id="manual-code" placeholder="КОД" maxlength="5" value="${esc(manualCode)}" />
+        <button id="manual-find">Найти</button>
+      </div>
+      ${error ? `<div class="error-note">${esc(error)}</div>` : ""}
+      ${order ? orderCardHTML(order) : ""}
+    `;
+  }
+
+  function orderCardHTML(o) {
+    const time = new Date(o.createdAt).toLocaleString("ru-RU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" });
+    const status = o.status || "Принят";
+    return `
+      <div class="order-card">
+        <div class="oc-top">
+          <div class="oc-code">${esc(o.code)}</div>
+          <div class="oc-time">${time}</div>
+        </div>
+        <div class="oc-table">Стол ${esc(o.table)}</div>
+        <div class="status-row">
+          ${STATUSES.map(s => `<div class="status-chip ${s === status ? "current" : ""}" data-status="${esc(s)}">${esc(s)}</div>`).join("")}
+        </div>
+        <div class="oc-list">
+          ${o.items.map(it => `<div class="r-row"><span class="n">${it.qty} × ${esc(it.n)}</span><span>${fmt(it.p * it.qty)} ₸</span></div>`).join("")}
+          <div class="r-total"><span>Итого</span><span class="val">${fmt(o.total)} ₸</span></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function queueTabHTML() {
+    if (queueLoading) return `<div class="empty-note">Загружаем заказы…</div>`;
+    return `
+      ${queue.length ? queue.map(q => {
+        const time = new Date(q.createdAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+        return `
+        <div class="queue-item" data-open="${esc(q.code)}">
+          <div class="qcode">${esc(q.code)}</div>
+          <div class="qinfo">
+            <div class="qtable">Стол ${esc(q.table)}</div>
+            <div class="qtime">${time} · ${esc(q.status || "Принят")}</div>
+          </div>
+          <div class="qtotal">${fmt(q.total)} ₸</div>
+        </div>`;
+      }).join("") : `<div class="empty-note">Пока нет активных заказов</div>`}
+    `;
+  }
+
+  function bind() {
+    root.querySelectorAll("[data-tab]").forEach(t => t.onclick = () => {
+      tab = t.dataset.tab;
+      if (tab === "queue") loadQueue();
+      render();
+    });
+    const startBtn = root.querySelector("#start-scan");
+    if (startBtn) startBtn.onclick = startScan;
+    const stopBtn = root.querySelector("#stop-scan");
+    if (stopBtn) stopBtn.onclick = () => { stopScan(); render(); };
+
+    const manualInput = root.querySelector("#manual-code");
+    if (manualInput) {
+      manualInput.oninput = (e) => { manualCode = e.target.value.toUpperCase(); };
+      manualInput.onkeydown = (e) => { if (e.key === "Enter") lookup(manualCode); };
+    }
+    const findBtn = root.querySelector("#manual-find");
+    if (findBtn) findBtn.onclick = () => lookup(manualCode);
+
+    root.querySelectorAll("[data-status]").forEach(s => s.onclick = () => setStatus(s.dataset.status));
+    root.querySelectorAll("[data-open]").forEach(q => q.onclick = () => openFromQueue(q.dataset.open));
+  }
+
+  // auto-open order if scanned QR linked straight here with ?code=
+  const params = new URLSearchParams(location.search);
+  const preCode = params.get("code");
+
+  render();
+  if (preCode) lookup(preCode);
+})();
+</script>
+</body>
+</html>
